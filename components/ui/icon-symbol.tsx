@@ -11,6 +11,7 @@ const MAPPING = {
   'ellipsis': 'more-horiz',
   'clock': 'access-time',
   'plus.circle.fill': 'add-circle',
+  'barcode.viewfinder': 'qr-code-scanner',
 } as Partial<
   Record<
     SFSymbol,
@@ -30,7 +31,7 @@ export function IconSymbol({
   name: IconSymbolName;
   size?: number;
   color: string | OpaqueColorValue;
-  style?: any; 
+  style?: any;
   weight?: SymbolViewProps['weight'];
 }) {
   const isIos = process.env.EXPO_OS === 'ios';

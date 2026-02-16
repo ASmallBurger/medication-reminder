@@ -11,25 +11,28 @@ export interface Medication {
 }
 
 const STORAGE_KEY = 'medication_data';
+const CLEANUP_KEY = 'dummy_data_cleaned';
 
-// Initialize with dummy data on first load
-const initializeDummyData = async () => {
+// One-time cleanup: remove old placeholder medications that were cached from previous versions
+const cleanupDummyData = async () => {
   try {
-    const existingData = await AsyncStorage.getItem(STORAGE_KEY);
-    if (!existingData) {
-      const dummyData: Medication[] = [
-        { id: '1', name: 'Vitamin D', dosage: '1000 IU', frequency: 'Daily 9:00 AM' },
-        { id: '2', name: 'Omega-3', dosage: '1000 MG', frequency: 'Daily 9:00 AM' },
-      ];
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dummyData));
+    const alreadyCleaned = await AsyncStorage.getItem(CLEANUP_KEY);
+    if (alreadyCleaned) return;
+
+    const data = await AsyncStorage.getItem(STORAGE_KEY);
+    if (data) {
+      const medications: Medication[] = JSON.parse(data);
+      const cleaned = medications.filter(med => med.id !== '1' && med.id !== '2');
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
     }
+    await AsyncStorage.setItem(CLEANUP_KEY, 'true');
   } catch (e) {
-    console.error("Error initializing dummy data", e);
+    console.error("Error cleaning up dummy data", e);
   }
 };
 
-// Call initialization
-initializeDummyData();
+cleanupDummyData();
+
 
 /**
  * Get all medications from storage
@@ -63,14 +66,14 @@ export const addMedication = async (newMed: Medication): Promise<boolean> => {
  * Update medication status (taken/missed)
  */
 export const updateMedicationStatus = async (
-  id: string, 
+  id: string,
   status: 'taken' | 'missed'
 ): Promise<boolean> => {
   try {
     const medications = await getMedications();
-    const updatedList = medications.map(med => 
-      med.id === id 
-        ? { ...med, status, lastUpdated: new Date().toISOString() } 
+    const updatedList = medications.map(med =>
+      med.id === id
+        ? { ...med, status, lastUpdated: new Date().toISOString() }
         : med
     );
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
@@ -97,6 +100,26 @@ export const deleteMedication = async (id: string): Promise<boolean> => {
 };
 
 /**
+ * Update a medication's details
+ */
+export const updateMedication = async (
+  id: string,
+  updates: Partial<Pick<Medication, 'name' | 'dosage' | 'frequency'>>
+): Promise<boolean> => {
+  try {
+    const medications = await getMedications();
+    const updatedList = medications.map(med =>
+      med.id === id ? { ...med, ...updates } : med
+    );
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+    return true;
+  } catch (e) {
+    console.error("Error updating medication", e);
+    return false;
+  }
+};
+
+/**
  * Barcode lookup table
  * Returns medication data if barcode is found in our database
  */
@@ -107,6 +130,6 @@ export const getMedicationByBarcode = (barcode: string): Partial<Medication> | n
     "5055555555501": { name: "Aspirin", dosage: "75mg" },
     "5044444444401": { name: "Vitamin C", dosage: "1000mg" },
   };
-  
+
   return barcodeLookupTable[barcode] || null;
 };

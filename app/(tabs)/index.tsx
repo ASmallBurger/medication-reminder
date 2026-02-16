@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import MedicationCard from '@/components/MedicationCard';
-import { getMedications, updateMedicationStatus, Medication } from '@/Data/database';
+import { getMedications, updateMedicationStatus, deleteMedication, updateMedication, Medication } from '@/Data/database';
 
 export default function HomeScreen() {
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -22,22 +22,34 @@ export default function HomeScreen() {
     }, [])
   );
 
+  // Refresh the list from storage
+  const refreshList = async () => {
+    const updatedData = await getMedications();
+    setMedications(updatedData);
+  };
+
   // Handle status update (taken/missed)
   const handleStatusUpdate = async (id: string, status: 'taken' | 'missed') => {
-    // Update in database
     const success = await updateMedicationStatus(id, status);
-    
-    if (success) {
-      // Refresh the local state to show the change immediately
-      const updatedData = await getMedications();
-      setMedications(updatedData);
-    }
+    if (success) refreshList();
+  };
+
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    const success = await deleteMedication(id);
+    if (success) refreshList();
+  };
+
+  // Handle edit
+  const handleEdit = async (id: string, updates: { name: string; dosage: string; frequency: string }) => {
+    const success = await updateMedication(id, updates);
+    if (success) refreshList();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contentContainer}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.date}>Today</Text>
@@ -59,13 +71,15 @@ export default function HomeScreen() {
               </Text>
             }
             renderItem={({ item }) => (
-              <MedicationCard 
-                name={item.name} 
-                dosage={item.dosage} 
-                time={item.frequency} 
+              <MedicationCard
+                name={item.name}
+                dosage={item.dosage}
+                time={item.frequency}
                 status={item.status}
                 onPressTaken={() => handleStatusUpdate(item.id, 'taken')}
                 onPressMissed={() => handleStatusUpdate(item.id, 'missed')}
+                onDelete={() => handleDelete(item.id)}
+                onEdit={(updates) => handleEdit(item.id, updates)}
               />
             )}
             contentContainerStyle={{ paddingBottom: 100 }}
@@ -80,7 +94,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7', 
+    backgroundColor: '#F2F2F7',
   },
   contentContainer: {
     padding: 20,

@@ -31,7 +31,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow MedicationReminder to access your camera to scan medication barcodes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -42,6 +48,12 @@
         "projectId": "632f9391-6f7d-41c9-ba67-e2890f2cbc30"
       }
     },
-    "owner": "k0d"
+    "owner": "k0d",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/632f9391-6f7d-41c9-ba67-e2890f2cbc30"
+    }
   }
 }
