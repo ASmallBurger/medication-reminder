@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import SchedulePicker from '@/components/SchedulePicker';
-import { addMedication, getMedicationByBarcode, Medication } from '@/Data/database';
+import { addMedication, getMedicationByBarcode, saveBarcodeMedication, Medication } from '@/Data/database';
 
 export default function AddMedicationScreen() {
   const router = useRouter();
@@ -30,7 +30,13 @@ export default function AddMedicationScreen() {
 
   // Scanner vs form mode
   const [mode, setMode] = useState<'scanner' | 'form'>('scanner');
-  const [scanned, setScanned] = useState(false);
+
+  // Use a ref for scanned flag — refs update immediately (synchronous),
+  // unlike useState which batches updates and can let multiple scan events through
+  const scannedRef = useRef(false);
+
+  // Track the last scanned barcode for self-learning database
+  const lastBarcodeRef = useRef<string | null>(null);
 
   // Generate a unique ID for new medications
   const generateId = () => {
@@ -38,12 +44,14 @@ export default function AddMedicationScreen() {
   };
 
   // Handle barcode scanned
-  const handleBarcodeScanned = (result: BarcodeScanningResult) => {
-    if (scanned) return; // Prevent multiple rapid scans
-    setScanned(true);
+  const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
+    // Ref check is synchronous — prevents multiple callbacks from firing
+    if (scannedRef.current) return;
+    scannedRef.current = true;
 
     const barcodeData = result.data;
-    const medication = getMedicationByBarcode(barcodeData);
+    lastBarcodeRef.current = barcodeData;
+    const medication = await getMedicationByBarcode(barcodeData);
 
     if (medication) {
       // Auto-fill the form with the matched medication data
@@ -58,7 +66,7 @@ export default function AddMedicationScreen() {
       // Barcode not in our database
       Alert.alert(
         'Not Recognized',
-        'This barcode is not in the database. You can enter the details manually.',
+        'This barcode is not in the database. You can enter the details manually and it will be remembered for next time.',
         [
           {
             text: 'Add Manually',
@@ -69,7 +77,8 @@ export default function AddMedicationScreen() {
           {
             text: 'Scan Again',
             onPress: () => {
-              setScanned(false);
+              scannedRef.current = false;
+              lastBarcodeRef.current = null;
             }
           },
         ]
@@ -95,6 +104,11 @@ export default function AddMedicationScreen() {
 
     const success = await addMedication(newMedication);
 
+    // If this medication came from an unknown barcode scan, save it for future auto-fill
+    if (success && lastBarcodeRef.current) {
+      await saveBarcodeMedication(lastBarcodeRef.current, name.trim(), dosage.trim());
+    }
+
     setIsSaving(false);
 
     if (success) {
@@ -109,7 +123,8 @@ export default function AddMedicationScreen() {
               setName('');
               setDosage('');
               setFrequency('');
-              setScanned(false);
+              scannedRef.current = false;
+              lastBarcodeRef.current = null;
               setMode('scanner');
               // Navigate back to home screen
               router.back();
@@ -124,7 +139,7 @@ export default function AddMedicationScreen() {
 
   // Switch to manual form
   const handleAddManually = () => {
-    setScanned(false);
+    scannedRef.current = false;
     setMode('form');
   };
 
@@ -133,7 +148,8 @@ export default function AddMedicationScreen() {
     setName('');
     setDosage('');
     setFrequency('');
-    setScanned(false);
+    scannedRef.current = false;
+    lastBarcodeRef.current = null;
     setMode('scanner');
   };
 
@@ -177,7 +193,7 @@ export default function AddMedicationScreen() {
           barcodeScannerSettings={{
             barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'],
           }}
-          onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+          onBarcodeScanned={handleBarcodeScanned}
         />
 
         {/* Dark overlay with cutout */}

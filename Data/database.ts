@@ -98,16 +98,69 @@ export const updateMedication = async (
 };
 
 /**
- * Barcode lookup table
- * Returns medication data if barcode is found in our database
+ * Built-in barcode lookup table (starter database)
  */
-export const getMedicationByBarcode = (barcode: string): Partial<Medication> | null => {
-  const barcodeLookupTable: Record<string, Partial<Medication>> = {
-    "5017848251872": { name: "Paracetamol", dosage: "500mg" },
-    "5017353502469": { name: "Ibuprofen", dosage: "200mg" },
-    "5055555555501": { name: "Aspirin", dosage: "75mg" },
-    "7898665432143": { name: "Omega-3", dosage: "1000mg" },
-  };
+const BUILT_IN_BARCODES: Record<string, Partial<Medication>> = {
+  "5017848251872": { name: "Paracetamol", dosage: "500mg" },
+  "5017353502469": { name: "Ibuprofen", dosage: "200mg" },
+  "5055555555501": { name: "Aspirin", dosage: "75mg" },
+  "7898665432143": { name: "Omega-3", dosage: "1000mg" },
+};
 
-  return barcodeLookupTable[barcode] || null;
+const USER_BARCODES_KEY = 'user_barcode_data';
+
+/**
+ * Get medication data by barcode
+ * First checks built-in database, then checks user-saved barcodes
+ */
+export const getMedicationByBarcode = async (barcode: string): Promise<Partial<Medication> | null> => {
+  // Check built-in database first
+  if (BUILT_IN_BARCODES[barcode]) {
+    return BUILT_IN_BARCODES[barcode];
+  }
+
+  // Check user-saved barcodes
+  try {
+    const data = await AsyncStorage.getItem(USER_BARCODES_KEY);
+    if (data) {
+      const userBarcodes: Record<string, Partial<Medication>> = JSON.parse(data);
+      if (userBarcodes[barcode]) {
+        return userBarcodes[barcode];
+      }
+    }
+  } catch (e) {
+    console.error("Error reading user barcodes", e);
+  }
+
+  return null;
+};
+
+/**
+ * Save a barcode -> medication mapping for future auto-fill
+ * Skips if the barcode already exists in either database
+ */
+export const saveBarcodeMedication = async (
+  barcode: string,
+  name: string,
+  dosage: string
+): Promise<boolean> => {
+  try {
+    // Skip if already in built-in database
+    if (BUILT_IN_BARCODES[barcode]) return true;
+
+    // Load existing user barcodes
+    const data = await AsyncStorage.getItem(USER_BARCODES_KEY);
+    const userBarcodes: Record<string, Partial<Medication>> = data ? JSON.parse(data) : {};
+
+    // Skip if already saved by user
+    if (userBarcodes[barcode]) return true;
+
+    // Save new barcode mapping
+    userBarcodes[barcode] = { name, dosage };
+    await AsyncStorage.setItem(USER_BARCODES_KEY, JSON.stringify(userBarcodes));
+    return true;
+  } catch (e) {
+    console.error("Error saving barcode mapping", e);
+    return false;
+  }
 };
