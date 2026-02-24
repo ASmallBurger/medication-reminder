@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import SchedulePicker from '@/components/SchedulePicker';
 
 interface MedicationCardProps {
   name: string;
@@ -87,13 +88,7 @@ export default function MedicationCard({
           placeholder="Dosage"
           placeholderTextColor="#999"
         />
-        <TextInput
-          style={styles.editInput}
-          value={editFrequency}
-          onChangeText={setEditFrequency}
-          placeholder="Frequency / Time"
-          placeholderTextColor="#999"
-        />
+        <SchedulePicker value={editFrequency} onChange={setEditFrequency} />
 
         <View style={styles.editButtonGroup}>
           <TouchableOpacity style={styles.cancelEditButton} onPress={handleEditCancel}>

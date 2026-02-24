@@ -13,6 +13,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import SchedulePicker from '@/components/SchedulePicker';
 import { addMedication, getMedicationByBarcode, Medication } from '@/Data/database';
 
 export default function AddMedicationScreen() {
@@ -254,16 +255,9 @@ export default function AddMedicationScreen() {
           />
         </View>
 
-        {/* Frequency Input */}
+        {/* Frequency & Time Picker */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Frequency / Time</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Daily at 9:00 AM"
-            placeholderTextColor="#999"
-            value={frequency}
-            onChangeText={setFrequency}
-          />
+          <SchedulePicker value={frequency} onChange={setFrequency} />
         </View>
 
         {/* --- BUTTONS --- */}

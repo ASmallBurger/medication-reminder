@@ -11,28 +11,6 @@ export interface Medication {
 }
 
 const STORAGE_KEY = 'medication_data';
-const CLEANUP_KEY = 'dummy_data_cleaned';
-
-// One-time cleanup: remove old placeholder medications that were cached from previous versions
-const cleanupDummyData = async () => {
-  try {
-    const alreadyCleaned = await AsyncStorage.getItem(CLEANUP_KEY);
-    if (alreadyCleaned) return;
-
-    const data = await AsyncStorage.getItem(STORAGE_KEY);
-    if (data) {
-      const medications: Medication[] = JSON.parse(data);
-      const cleaned = medications.filter(med => med.id !== '1' && med.id !== '2');
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
-    }
-    await AsyncStorage.setItem(CLEANUP_KEY, 'true');
-  } catch (e) {
-    console.error("Error cleaning up dummy data", e);
-  }
-};
-
-cleanupDummyData();
-
 
 /**
  * Get all medications from storage
@@ -84,7 +62,7 @@ export const updateMedicationStatus = async (
   }
 };
 
-/**
+/*
  * Delete a medication
  */
 export const deleteMedication = async (id: string): Promise<boolean> => {
@@ -99,7 +77,7 @@ export const deleteMedication = async (id: string): Promise<boolean> => {
   }
 };
 
-/**
+/*
  * Update a medication's details
  */
 export const updateMedication = async (
@@ -125,10 +103,10 @@ export const updateMedication = async (
  */
 export const getMedicationByBarcode = (barcode: string): Partial<Medication> | null => {
   const barcodeLookupTable: Record<string, Partial<Medication>> = {
-    "5012345678901": { name: "Paracetamol", dosage: "500mg" },
-    "5098765432101": { name: "Ibuprofen", dosage: "200mg" },
+    "5017848251872": { name: "Paracetamol", dosage: "500mg" },
+    "5017353502469": { name: "Ibuprofen", dosage: "200mg" },
     "5055555555501": { name: "Aspirin", dosage: "75mg" },
-    "5044444444401": { name: "Vitamin C", dosage: "1000mg" },
+    "7898665432143": { name: "Omega-3", dosage: "1000mg" },
   };
 
   return barcodeLookupTable[barcode] || null;
