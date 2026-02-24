@@ -81,5 +81,5 @@ Here is a breakdown of where everything is:
 - **Push Notifications**: Background reminders cannot be triggered while running inside Expo Go, as it operates as a sandbox. A standalone build via EAS would be required for production notifications
 - **Barcode Coverage**: The built-in database contains a small starter set. The self-learning feature expands coverage over time as the user scans new medicines
 
-
+##
 This project was developed as a Final Year Project for my university.
