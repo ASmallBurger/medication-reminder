@@ -32,7 +32,7 @@ export default function AddMedicationScreen() {
   const [mode, setMode] = useState<'scanner' | 'form'>('scanner');
 
   // Use a ref for scanned flag — refs update immediately (synchronous),
-  // unlike useState which batches updates and can let multiple scan events through
+
   const scannedRef = useRef(false);
 
   // Track the last scanned barcode for self-learning database
@@ -133,7 +133,7 @@ export default function AddMedicationScreen() {
         ]
       );
     } else {
-      Alert.alert('Error', 'Failed to save medication. Please try again.');
+      Alert.alert('Error', 'Failed to save medication. Please try again or add manually.');
     }
   };
 

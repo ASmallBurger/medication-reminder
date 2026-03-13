@@ -10,7 +10,25 @@ export interface Medication {
   lastUpdated?: string;
 }
 
+export interface MedicationLog {
+  id: string;
+  medicineName: string;
+  status: 'taken' | 'missed';
+  date: string;   // e.g. "2026-03-13"
+  time: string;   // e.g. "16:45"
+}
+
+export interface ArchivedMedication {
+  id: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  archivedDate: string;
+}
+
 const STORAGE_KEY = 'medication_data';
+const LOG_KEY = 'medication_log';
+const ARCHIVE_KEY = 'medication_archive';
 
 /**
  * Get all medications from storage
@@ -40,8 +58,86 @@ export const addMedication = async (newMed: Medication): Promise<boolean> => {
   }
 };
 
+// ─── Medication Log ────────────────────────────────────────
+
 /**
- * Update medication status (taken/missed)
+ * Add a log entry recording a taken/missed event
+ */
+export const addLogEntry = async (
+  medicineName: string,
+  status: 'taken' | 'missed'
+): Promise<boolean> => {
+  try {
+    const now = new Date();
+    const entry: MedicationLog = {
+      id: now.getTime().toString() + Math.random().toString(36).substr(2, 5),
+      medicineName,
+      status,
+      date: now.toISOString().split('T')[0],
+      time: now.toTimeString().slice(0, 5),
+    };
+    const existing = await getLogEntries();
+    await AsyncStorage.setItem(LOG_KEY, JSON.stringify([entry, ...existing]));
+    return true;
+  } catch (e) {
+    console.error("Error adding log entry", e);
+    return false;
+  }
+};
+
+/**
+ * Get all log entries (newest first)
+ */
+export const getLogEntries = async (): Promise<MedicationLog[]> => {
+  try {
+    const data = await AsyncStorage.getItem(LOG_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error("Error reading log entries", e);
+    return [];
+  }
+};
+
+// ─── Medication Archive ────────────────────────────────────
+
+/**
+ * Archive a medication (called before deletion)
+ */
+export const archiveMedication = async (med: Medication): Promise<boolean> => {
+  try {
+    const archived: ArchivedMedication = {
+      id: med.id,
+      name: med.name,
+      dosage: med.dosage,
+      frequency: med.frequency,
+      archivedDate: new Date().toISOString().split('T')[0],
+    };
+    const existing = await getArchivedMedications();
+    await AsyncStorage.setItem(ARCHIVE_KEY, JSON.stringify([archived, ...existing]));
+    return true;
+  } catch (e) {
+    console.error("Error archiving medication", e);
+    return false;
+  }
+};
+
+/**
+ * Get all archived (deleted) medications
+ */
+export const getArchivedMedications = async (): Promise<ArchivedMedication[]> => {
+  try {
+    const data = await AsyncStorage.getItem(ARCHIVE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    console.error("Error reading archived medications", e);
+    return [];
+  }
+};
+
+// ─── Status & Delete (updated) ─────────────────────────────
+
+/**
+ * Update medication status (taken/missed) and log the event
  */
 export const updateMedicationStatus = async (
   id: string,
@@ -49,12 +145,19 @@ export const updateMedicationStatus = async (
 ): Promise<boolean> => {
   try {
     const medications = await getMedications();
-    const updatedList = medications.map(med =>
-      med.id === id
-        ? { ...med, status, lastUpdated: new Date().toISOString() }
-        : med
+    const med = medications.find(m => m.id === id);
+    const updatedList = medications.map(m =>
+      m.id === id
+        ? { ...m, status, lastUpdated: new Date().toISOString() }
+        : m
     );
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
+
+    // Log this event
+    if (med) {
+      await addLogEntry(med.name, status);
+    }
+
     return true;
   } catch (e) {
     console.error("Error updating medication status", e);
@@ -62,12 +165,19 @@ export const updateMedicationStatus = async (
   }
 };
 
-/*
- * Delete a medication
+/**
+ * Delete a medication (archives it first)
  */
 export const deleteMedication = async (id: string): Promise<boolean> => {
   try {
     const medications = await getMedications();
+    const medToDelete = medications.find(med => med.id === id);
+
+    // Archive before deleting
+    if (medToDelete) {
+      await archiveMedication(medToDelete);
+    }
+
     const updatedList = medications.filter(med => med.id !== id);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
     return true;
@@ -103,7 +213,6 @@ export const updateMedication = async (
 const BUILT_IN_BARCODES: Record<string, Partial<Medication>> = {
   "5017848251872": { name: "Paracetamol", dosage: "500mg" },
   "5017353502469": { name: "Ibuprofen", dosage: "200mg" },
-  "5055555555501": { name: "Aspirin", dosage: "75mg" },
   "7898665432143": { name: "Omega-3", dosage: "1000mg" },
 };
 

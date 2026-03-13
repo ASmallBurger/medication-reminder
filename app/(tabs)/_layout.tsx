@@ -42,6 +42,24 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
         }}
       />
+
+      {/* Tab 3: History Screen */}
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'History',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bar-chart" color={color} />,
+        }}
+      />
+
+      {/* Tab 4: Archive Screen */}
+      <Tabs.Screen
+        name="archive"
+        options={{
+          title: 'Archive',
+          tabBarIcon: ({ color }) => <TabBarIcon name="archive" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
