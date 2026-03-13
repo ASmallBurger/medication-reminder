@@ -15,6 +15,8 @@ No setup needed, just scan the QR code with the **Expo Go** app ([iOS](https://a
 - **Barcode Scanner** - Scan medicine boxes with your phone's camera to auto-fill medication details
 - **Self-Learning Database** - Unknown barcodes are saved locally after the first manual entry, so they auto-fill next time
 - **Medication Tracking** - Mark doses as "Taken" or "Missed" with a single tap
+- **History Tracker** - View a pie chart of your taken vs. missed ratio, alongside a scrollable log of every dose
+- **Archive System** - All deleted medications are automatically saved to an archive page for your records
 - **Edit & Delete** - Update medication details or remove them via an inline menu on each card
 - **Schedule Picker** - Set frequency (Daily, Twice a Day, Weekly, etc.) and time using dropdown selectors instead of typing
 - **Offline-First** - All data is stored locally on the device using AsyncStorage. No internet required, no cloud accounts
