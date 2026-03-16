@@ -69,15 +69,30 @@ export const addLogEntry = async (
 ): Promise<boolean> => {
   try {
     const now = new Date();
-    const entry: MedicationLog = {
-      id: now.getTime().toString() + Math.random().toString(36).substr(2, 5),
-      medicineName,
-      status,
-      date: now.toISOString().split('T')[0],
-      time: now.toTimeString().slice(0, 5),
-    };
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toTimeString().slice(0, 5);
+
     const existing = await getLogEntries();
-    await AsyncStorage.setItem(LOG_KEY, JSON.stringify([entry, ...existing]));
+    const existingIndex = existing.findIndex(
+      e => e.medicineName === medicineName && e.date === dateStr
+    );
+
+    if (existingIndex !== -1) {
+      // Update existing entry for today instead of creating duplicate
+      existing[existingIndex].status = status;
+      existing[existingIndex].time = timeStr;
+      await AsyncStorage.setItem(LOG_KEY, JSON.stringify(existing));
+    } else {
+      // Create new entry
+      const entry: MedicationLog = {
+        id: now.getTime().toString() + Math.random().toString(36).substr(2, 5),
+        medicineName,
+        status,
+        date: dateStr,
+        time: timeStr,
+      };
+      await AsyncStorage.setItem(LOG_KEY, JSON.stringify([entry, ...existing]));
+    }
     return true;
   } catch (e) {
     console.error("Error adding log entry", e);
