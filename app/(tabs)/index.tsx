@@ -15,7 +15,15 @@ export default function HomeScreen() {
       const fetchData = async () => {
         setIsLoading(true);
         const data = await getMedications();
-        setMedications(data);
+        const today = new Date().toISOString().split('T')[0];
+        // Reset status for medications not updated today
+        const resetData = data.map(med => {
+          if (med.lastUpdated && med.lastUpdated.split('T')[0] !== today) {
+            return { ...med, status: undefined };
+          }
+          return med;
+        });
+        setMedications(resetData);
         setIsLoading(false);
       };
       fetchData();
