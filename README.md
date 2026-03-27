@@ -71,6 +71,8 @@ Here is a breakdown of where everything is:
   - `SchedulePicker.tsx` is the custom dropdown for picking times and frequencies.
 - **`Data/`** -- Where the database lives.
   - `database.ts` handles saving to AsyncStorage and the self-learning barcode logic.
+- **`utils/`** -- Helper logic and device APIs.
+  - `notifications.ts` manages scheduling local push reminders and requesting iOS/Android OS permissions.
 - **`assets/`** -- Static files like images, fonts.
 
 
