@@ -1,9 +1,10 @@
-import { StyleSheet, View, Text, FlatList, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
 import MedicationCard from '@/components/MedicationCard';
-import { getMedications, updateMedicationStatus, deleteMedication, updateMedication, Medication } from '@/Data/database';
+import { deleteMedication, getMedications, Medication, updateMedication, updateMedicationStatus } from '@/Data/database';
+import { cancelMedicationNotification } from '@/utils/notifications';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const [medications, setMedications] = useState<Medication[]>([]);
@@ -16,7 +17,7 @@ export default function HomeScreen() {
         setIsLoading(true);
         const data = await getMedications();
         const today = new Date().toISOString().split('T')[0];
-        // Reset status for medications not updated today
+        // Check current date and reset status if not updated
         const resetData = data.map(med => {
           if (med.lastUpdated && med.lastUpdated.split('T')[0] !== today) {
             return { ...med, status: undefined };
@@ -45,7 +46,10 @@ export default function HomeScreen() {
   // Handle delete
   const handleDelete = async (id: string) => {
     const success = await deleteMedication(id);
-    if (success) refreshList();
+    if (success) {
+      await cancelMedicationNotification(id);
+      refreshList();
+    }
   };
 
   // Handle edit

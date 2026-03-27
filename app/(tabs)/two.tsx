@@ -15,6 +15,7 @@ import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-ca
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import SchedulePicker from '@/components/SchedulePicker';
 import { addMedication, getMedicationByBarcode, saveBarcodeMedication, Medication } from '@/Data/database';
+import { requestNotificationPermissions, scheduleMedicationNotification } from '@/utils/notifications';
 
 export default function AddMedicationScreen() {
   const router = useRouter();
@@ -112,6 +113,12 @@ export default function AddMedicationScreen() {
     setIsSaving(false);
 
     if (success) {
+      // Setup notifications
+      const hasPermission = await requestNotificationPermissions();
+      if (hasPermission) {
+        await scheduleMedicationNotification(newMedication.id, newMedication.name, newMedication.dosage, newMedication.frequency);
+      }
+
       Alert.alert(
         'Success!',
         `${name} has been added to your list.`,
