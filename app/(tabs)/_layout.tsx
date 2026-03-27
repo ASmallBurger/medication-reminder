@@ -20,7 +20,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#0a7ea4',
         // Disable the static render of the header on web
         headerShown: useClientOnlyValue(false, true),
       }}>

@@ -15,6 +15,8 @@ No setup needed, just scan the QR code with the **Expo Go** app ([iOS](https://a
 - **Barcode Scanner** - Scan medicine boxes with your phone's camera to auto-fill medication details
 - **Self-Learning Database** - Unknown barcodes are saved locally after the first manual entry, so they auto-fill next time
 - **Medication Tracking** - Mark doses as "Taken" or "Missed" with a single tap
+- **Daily Auto-Reset** - Statuses automatically reset visually at the start of a new day without losing any logged history
+- **Local Push Notifications** - App securely schedules on-device reminders based on your exact saved time configuration
 - **History Tracker** - View a pie chart of your taken vs. missed ratio, alongside a scrollable log of every dose
 - **Archive System** - All deleted medications are automatically saved to an archive page for your records
 - **Edit & Delete** - Update medication details or remove them via an inline menu on each card
@@ -28,6 +30,7 @@ No setup needed, just scan the QR code with the **Expo Go** app ([iOS](https://a
 | React Native + Expo | Cross-platform mobile framework |
 | TypeScript | Type-safe codebase |
 | expo-camera | Barcode scanning (EAN-13, UPC-A, etc.) |
+| expo-notifications | Scheduling local on-device push reminders |
 | AsyncStorage | Local data persistence |
 | Expo Router | File-based navigation |
 
@@ -80,7 +83,6 @@ Here is a breakdown of where everything is:
 
 ## Known Limitations
 
-- **Push Notifications**: Background reminders cannot be triggered while running inside Expo Go, as it operates as a sandbox. A standalone build via EAS would be required for production notifications
 - **Barcode Coverage**: The built-in database contains a small starter set. The self-learning feature expands coverage over time as the user scans new medicines
 
 ##

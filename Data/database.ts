@@ -36,7 +36,26 @@ const ARCHIVE_KEY = 'medication_archive';
 export const getMedications = async (): Promise<Medication[]> => {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    
+    const medications: Medication[] = JSON.parse(data);
+    const today = new Date().toISOString().split('T')[0];
+    
+    let needsSave = false;
+    const currentMedications = medications.map(med => {
+      // If last updated on a previous day and still has a "status", clear it
+      if (med.lastUpdated && med.lastUpdated.split('T')[0] !== today && med.status !== undefined) {
+        needsSave = true;
+        return { ...med, status: undefined };
+      }
+      return med;
+    });
+
+    if (needsSave) {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(currentMedications));
+    }
+
+    return currentMedications;
   } catch (e) {
     console.error("Error loading medications", e);
     return [];
