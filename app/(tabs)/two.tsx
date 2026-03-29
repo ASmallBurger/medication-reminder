@@ -1,21 +1,21 @@
+import SchedulePicker from '@/components/SchedulePicker';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { addMedication, getMedicationByBarcode, Medication, saveBarcodeMedication } from '@/Data/database';
+import { requestNotificationPermissions, scheduleMedicationNotification } from '@/utils/notifications';
+import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { useState, useRef } from 'react';
-import { useRouter } from 'expo-router';
-import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import SchedulePicker from '@/components/SchedulePicker';
-import { addMedication, getMedicationByBarcode, saveBarcodeMedication, Medication } from '@/Data/database';
-import { requestNotificationPermissions, scheduleMedicationNotification } from '@/utils/notifications';
 
 export default function AddMedicationScreen() {
   const router = useRouter();
@@ -66,8 +66,8 @@ export default function AddMedicationScreen() {
     } else {
       // Barcode not in our database
       Alert.alert(
-        'Not Recognized',
-        'This barcode is not in the database. You can enter the details manually and it will be remembered for next time.',
+        'New Medicine Found!',
+        'You can enter the details manually and it will be remembered for next time.',
         [
           {
             text: 'Add Manually',
