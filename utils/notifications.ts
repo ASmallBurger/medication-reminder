@@ -1,4 +1,3 @@
-import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
@@ -22,10 +21,10 @@ export async function requestNotificationPermissions() {
 }
 
 export async function scheduleMedicationNotification(id: string, name: string, dosage: string, frequency: string) {
-  // Cancel any existing notification with this ID
+  // Cancel any existing notification with this ID no dublicates
   await cancelMedicationNotification(id);
 
-  // Parse frequency string "Daily at 9:00 AM"
+  // Parse frequency string "Daily at 9:00 AM" to 24-hour format so it can be used for notifications(needs 24hr format)
   const timeMatch = frequency.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
   if (!timeMatch) return;
 

@@ -26,7 +26,7 @@ export default function AddMedicationScreen() {
   // State for form inputs
   const [name, setName] = useState('');
   const [dosage, setDosage] = useState('');
-  const [frequency, setFrequency] = useState('');
+  const [frequency, setFrequency] = useState('Daily at 9:00 AM');
   const [isSaving, setIsSaving] = useState(false);
 
   // Scanner vs form mode
@@ -64,13 +64,13 @@ export default function AddMedicationScreen() {
         `${medication.name} (${medication.dosage}) was detected. Please set your schedule and save.`
       );
     } else {
-      // Barcode not in our database
+      // Barcode not in database
       Alert.alert(
         'New Medicine Found!',
-        'You can enter the details manually and it will be remembered for next time.',
+        'You can enter the details manually and it will be remembered for future use.',
         [
           {
-            text: 'Add Manually',
+            text: 'Save Barcode!',
             onPress: () => {
               setMode('form');
             }
@@ -89,8 +89,8 @@ export default function AddMedicationScreen() {
 
   // Save medication to database
   const handleSave = async () => {
-    if (!name || !dosage || !frequency) {
-      Alert.alert('Missing Info', 'Please fill in all the boxes.');
+    if (!name || !frequency) {
+      Alert.alert('Missing Info', 'Please provide at least a name and schedule.');
       return;
     }
 
@@ -129,7 +129,7 @@ export default function AddMedicationScreen() {
               // Clear the form and return to scanner mode
               setName('');
               setDosage('');
-              setFrequency('');
+              setFrequency('Daily at 9:00 AM');
               scannedRef.current = false;
               lastBarcodeRef.current = null;
               setMode('scanner');
@@ -154,7 +154,7 @@ export default function AddMedicationScreen() {
   const handleBackToScanner = () => {
     setName('');
     setDosage('');
-    setFrequency('');
+    setFrequency('Daily at 9:00 AM');
     scannedRef.current = false;
     lastBarcodeRef.current = null;
     setMode('scanner');

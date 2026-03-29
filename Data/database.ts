@@ -37,10 +37,10 @@ export const getMedications = async (): Promise<Medication[]> => {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEY);
     if (!data) return [];
-    
+
     const medications: Medication[] = JSON.parse(data);
     const today = new Date().toISOString().split('T')[0];
-    
+
     let needsSave = false;
     const currentMedications = medications.map(med => {
       // If last updated on a previous day and still has a "status", clear it
@@ -77,7 +77,7 @@ export const addMedication = async (newMed: Medication): Promise<boolean> => {
   }
 };
 
-// ─── Medication Log ────────────────────────────────────────
+// ─── Medication Log ─────
 
 /**
  * Add a log entry recording a taken/missed event
@@ -132,7 +132,7 @@ export const getLogEntries = async (): Promise<MedicationLog[]> => {
   }
 };
 
-// ─── Medication Archive ────────────────────────────────────
+// ─── Medication Archive ────
 
 /**
  * Archive a medication (called before deletion)
@@ -168,7 +168,7 @@ export const getArchivedMedications = async (): Promise<ArchivedMedication[]> =>
   }
 };
 
-// ─── Status & Delete (updated) ─────────────────────────────
+// ─── Status & Delete (updated) ───
 
 /**
  * Update medication status (taken/missed) and log the event
@@ -242,7 +242,7 @@ export const updateMedication = async (
 };
 
 /**
- * Built-in barcode lookup table (starter database)
+ * Built-in barcode lookup table (starter database)(kinda useless)
  */
 const BUILT_IN_BARCODES: Record<string, Partial<Medication>> = {
   "5017848251872": { name: "Paracetamol", dosage: "500mg" },
