@@ -1,6 +1,6 @@
 import MedicationCard from '@/components/MedicationCard';
 import { deleteMedication, getMedications, Medication, updateMedication, updateMedicationStatus } from '@/Data/database';
-import { cancelMedicationNotification } from '@/utils/notifications';
+import { cancelMedicationNotification, requestNotificationPermissions, scheduleMedicationNotification } from '@/utils/notifications';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
@@ -47,7 +47,16 @@ export default function HomeScreen() {
   // Handle edit
   const handleEdit = async (id: string, updates: { name: string; dosage: string; frequency: string }) => {
     const success = await updateMedication(id, updates);
-    if (success) refreshList();
+    if (success) {
+      // Reschedule the notification with the new time.
+      // The old notification must be cancelled first so we don't end up
+      // with two notifications firing for the same medication.
+      const hasPermission = await requestNotificationPermissions();
+      if (hasPermission) {
+        await scheduleMedicationNotification(id, updates.name, updates.dosage, updates.frequency);
+      }
+      refreshList();
+    }
   };
 
   return (

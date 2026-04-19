@@ -87,5 +87,10 @@ Here is a breakdown of where everything is:
 
 - **Barcode Coverage**: The built-in database contains a small starter set. The self-learning feature expands coverage over time as the user scans new medicines
 
+## Acknowledgements
+
+- Most comments in this codebase were written with the assistance of AI.
+- The pie chart in the history screen was also developed with the assistance of AI.
+
 ##
 This project was developed as a Final Year Project for my university.
