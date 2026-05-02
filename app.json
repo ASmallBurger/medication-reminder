@@ -38,7 +38,8 @@
         {
           "cameraPermission": "Allow MedicationReminder to access your camera to scan medication barcodes."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true
