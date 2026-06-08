@@ -66,7 +66,7 @@ export default function AddMedicationScreen() {
     } else {
       // Barcode not in database
       Alert.alert(
-        'New Medicine Found!',
+        'Enter Details',
         'You can enter the details manually and it will be remembered for future use.',
         [
           {

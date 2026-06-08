@@ -7,7 +7,7 @@ A mobile application for Android and IOS built with React Native and Expo that h
 No setup needed, just scan the QR code with the **Expo Go** app ([iOS](https://apps.apple.com/app/expo-go/id982107779) / [Android](https://play.google.com/store/apps/details?id=host.exp.exponent)):
 
 <p align="center">
-  <img src="assets/qr-code.png" alt="Expo Go QR Code" width="250" />
+  <img src="assets/images/expo-qr-code.png" alt="Expo Go QR Code" width="250" />
 </p>
 
 ## Features

@@ -49,8 +49,6 @@ export default function HomeScreen() {
     const success = await updateMedication(id, updates);
     if (success) {
       // Reschedule the notification with the new time.
-      // The old notification must be cancelled first so we don't end up
-      // with two notifications firing for the same medication.
       const hasPermission = await requestNotificationPermissions();
       if (hasPermission) {
         await scheduleMedicationNotification(id, updates.name, updates.dosage, updates.frequency);
